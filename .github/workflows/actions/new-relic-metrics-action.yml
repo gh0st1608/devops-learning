@@ -1,0 +1,16 @@
+name: newrelic-metrics
+
+inputs:
+  workflow-name:
+    required: true
+  status:
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Send metrics
+      shell: bash
+      run: |
+        echo "Workflow: ${{ inputs.workflow-name }}"
+        echo "Status: ${{ inputs.status }}"

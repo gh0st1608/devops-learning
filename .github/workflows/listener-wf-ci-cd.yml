@@ -1,0 +1,11 @@
+name: test-framework
+
+on: push
+
+jobs:
+  cicd:
+    uses: ./. /workflows/wf-nodejs-all.yml
+    with:
+      component-type: ecs
+  observability:
+    

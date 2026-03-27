@@ -1,0 +1,13 @@
+name: wf-deploy-s3
+
+on:
+  workflow_call:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fake S3 deploy
+        run: |
+          echo "Uploading to S3..."

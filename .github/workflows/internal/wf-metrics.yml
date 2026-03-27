@@ -1,0 +1,22 @@
+name: wf-metrics
+
+on:
+  workflow_call:
+    inputs:
+      workflow-name:
+        required: true
+        type: string
+      status:
+        required: true
+        type: string
+
+jobs:
+  metrics:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send metrics
+        uses: ./.github/actions/newrelic-metrics
+        with:
+          workflow-name: ${{ inputs.workflow-name }}
+          status: ${{ inputs.status }}

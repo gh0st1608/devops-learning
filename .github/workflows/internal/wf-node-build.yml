@@ -1,0 +1,22 @@
+name: wf-node-build
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+
+      - name: Run node build action
+        uses: ./.github/actions/node-build-action

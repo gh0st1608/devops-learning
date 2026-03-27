@@ -1,0 +1,14 @@
+name: wf-env
+
+on:
+  workflow_call:
+
+jobs:
+  env:
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.set.outputs.env }}
+    steps:
+      - id: set
+        run: |
+          echo "env=dev" >> $GITHUB_OUTPUT

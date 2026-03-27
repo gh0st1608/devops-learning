@@ -1,0 +1,59 @@
+name: wf-node-test
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        required: true
+        type: string
+      node-version:
+        required: true
+        type: string
+      npm-install-command:
+        required: true
+        type: string
+      npm-test-command:
+        required: true
+        type: string
+      flag-sonarcloud:
+        required: true
+        type: boolean
+      flag-unit-test:
+        required: true
+        type: boolean
+      report-path:
+        required: false
+        type: string
+      sonar-exclusions:
+        required: false
+        type: string
+      sonar-sources:
+        required: false
+        type: string
+
+    secrets:
+      PA_TOKEN:
+        required: true
+      SONAR_TOKEN:
+        required: true
+
+jobs:
+  test:
+    if: ${{ inputs.flag-unit-test }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/actions/node-test-sonar-action
+        with:
+          working-directory: ${{ inputs.working-directory }}
+          install-command: ${{ inputs.npm-install-command }}
+          test-command: ${{ inputs.npm-test-command }}
+          node-version: ${{ inputs.node-version }}
+          npm-token: ${{ secrets.PA_TOKEN }}
+          sonar-token: ${{ secrets.SONAR_TOKEN }}
+          flag-unit-test: ${{ inputs.flag-unit-test }}
+          report-path: ${{ inputs.report-path }}
+          sonar-exclusions: ${{ inputs.sonar-exclusions }}
+          sonar-sources: ${{ inputs.sonar-sources }}

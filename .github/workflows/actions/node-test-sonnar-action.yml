@@ -1,0 +1,80 @@
+name: node-test-sonar
+description: Run tests and sonarcloud
+
+inputs:
+  working-directory:
+    required: true
+  install-command:
+    required: true
+  test-command:
+    required: true
+  node-version:
+    required: true
+  npm-token:
+    required: true
+  sonar-token:
+    required: true
+  flag-unit-test:
+    required: true
+  report-path:
+    required: false
+  sonar-exclusions:
+    required: false
+  sonar-sources:
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v3
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: npm
+
+    - name: Install dependencies
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
+      run: ${{ inputs.install-command }}
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.npm-token }}
+
+    - name: Run tests
+      if: ${{ inputs.flag-unit-test == 'true' }}
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
+      run: ${{ inputs.test-command }}
+
+    - name: Set sonar args
+      id: sonar
+      shell: bash
+      run: |
+        case "${{ github.event_name }}" in
+          pull_request)
+            echo "extra=-Dsonar.pullrequest.key=${{ github.event.number }} -Dsonar.pullrequest.branch=${{ github.head_ref }} -Dsonar.pullrequest.base=${{ github.base_ref }}" >> $GITHUB_OUTPUT
+          ;;
+          push)
+            echo "extra=-Dsonar.branch=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          ;;
+          *)
+            echo "extra=" >> $GITHUB_OUTPUT
+        esac
+
+        if [[ "${{ inputs.flag-unit-test }}" == "true" ]]; then
+          echo "lcov=-Dsonar.javascript.lcov.reportPaths=${{ inputs.report-path }}/lcov.info" >> $GITHUB_OUTPUT
+        else
+          echo "lcov=" >> $GITHUB_OUTPUT
+        fi
+
+    - name: SonarCloud
+      uses: sonarsource/sonarcloud-github-action@v2
+      env:
+        SONAR_TOKEN: ${{ inputs.sonar-token }}
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        args: >
+          -Dsonar.organization=tech-belcorp
+          -Dsonar.projectKey=tech-belcorp_${{ github.event.repository.name }}
+          -Dsonar.sources=${{ inputs.sonar-sources }}
+          -Dsonar.exclusions=${{ inputs.sonar-exclusions }}
+          ${{ steps.sonar.outputs.extra }}
+          ${{ steps.sonar.outputs.lcov }}

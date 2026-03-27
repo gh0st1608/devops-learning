@@ -1,0 +1,15 @@
+name: Workflow-metrics
+
+on:
+  workflow_run:
+    workflows:
+      - '*'
+    types: [completed]
+
+jobs:
+  send-metrics:
+    uses: ./.github/workflows/wf-metrics.yml
+    with:
+      github_run_id: ${{ github.event.workflow_run.id }}
+      github_run_name: ${{ github.event.workflow_run.name }}
+      workflow_status: ${{ github.event.workflow_run.conclusion }}

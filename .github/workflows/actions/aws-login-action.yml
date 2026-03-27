@@ -1,0 +1,8 @@
+name: aws-login
+description: Fake AWS login (for act testing)
+
+runs:
+  using: "composite"
+  steps:
+    - run: echo "Simulating AWS login..."
+      shell: bash

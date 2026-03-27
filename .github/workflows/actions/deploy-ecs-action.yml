@@ -1,0 +1,8 @@
+name: deploy-ecs
+description: Deploy ECS
+
+runs:
+  using: "composite"
+  steps:
+    - run: echo "Deploy ECS service"
+      shell: bash

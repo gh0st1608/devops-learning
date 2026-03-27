@@ -1,0 +1,40 @@
+name: wf-node-lint
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        required: true
+        type: string
+      node-version:
+        required: true
+        type: string
+      npm-install-command:
+        required: true
+        type: string
+      npm-lint-command:
+        required: true
+        type: string
+      flag-eslint:
+        required: true
+        type: boolean
+
+    secrets:
+      PA_TOKEN:
+        required: true
+
+jobs:
+  lint:
+    if: ${{ inputs.flag-eslint }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/actions/node-lint
+        with:
+          working-directory: ${{ inputs.working-directory }}
+          install-command: ${{ inputs.npm-install-command }}
+          lint-command: ${{ inputs.npm-lint-command }}
+          node-version: ${{ inputs.node-version }}
+          npm-token: ${{ secrets.PA_TOKEN }}

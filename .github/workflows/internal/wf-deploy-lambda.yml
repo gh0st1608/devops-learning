@@ -1,0 +1,13 @@
+name: wf-deploy-lambda
+
+on:
+  workflow_call:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fake Lambda deploy
+        run: |
+          echo "Deploying Lambda..."

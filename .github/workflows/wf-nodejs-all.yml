@@ -1,0 +1,107 @@
+name: wf-nodejs-all
+
+on:
+  workflow_call:
+    inputs:
+      component-type:
+        required: true
+        type: string
+      node-version:
+        required: false
+        default: "18"
+        type: string
+      working-directory:
+        required: false
+        default: "."
+        type: string
+      npm-install-command:
+        required: false
+        default: "npm ci"
+        type: string
+      npm-lint-command:
+        required: false
+        default: "npm run lint"
+        type: string
+      npm-test-command:
+        required: false
+        default: "npm test"
+        type: string
+      flag-eslint:
+        required: false
+        default: true
+        type: boolean
+      flag-sonarcloud:
+        required: false
+        default: true
+        type: boolean
+      flag-unit-test:
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  env:
+    uses: ./.github/workflows/internal/wf-env.yml
+
+  lint:
+    needs: env
+    uses: ./.github/workflows/internal/wf-node-lint.yml
+    with:
+      working-directory: ${{ inputs.working-directory }}
+      node-version: ${{ inputs.node-version }}
+      npm-install-command: ${{ inputs.npm-install-command }}
+      npm-lint-command: ${{ inputs.npm-lint-command }}
+      flag-eslint: ${{ inputs.flag-eslint }}
+    secrets:
+      PA_TOKEN: ${{ secrets.PA_TOKEN }}
+
+  test:
+    needs: lint
+    uses: ./.github/workflows/internal/wf-node-test.yml
+    with:
+      working-directory: ${{ inputs.working-directory }}
+      node-version: ${{ inputs.node-version }}
+      npm-install-command: ${{ inputs.npm-install-command }}
+      npm-test-command: ${{ inputs.npm-test-command }}
+      flag-sonarcloud: ${{ inputs.flag-sonarcloud }}
+      flag-unit-test: ${{ inputs.flag-unit-test }}
+      report-path: "coverage"
+      sonar-sources: "."
+      sonar-exclusions: ""
+    secrets:
+      PA_TOKEN: ${{ secrets.PA_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  build:
+    needs: test
+    uses: ./.github/workflows/internal/wf-node-build.yml
+    with:
+      node-version: ${{ inputs.node-version }}
+
+  docker:
+    if: ${{ inputs.component-type == 'ecs' || inputs.component-type == 'lambda-image' }}
+    needs: build
+    uses: ./.github/workflows/internal/wf-docker.yml
+
+  deploy-ecs:
+    if: ${{ inputs.component-type == 'ecs' }}
+    needs: docker
+    uses: ./.github/workflows/internal/wf-deploy-ecs.yml
+
+  deploy-lambda:
+    if: ${{ inputs.component-type == 'lambda' }}
+    needs: build
+    uses: ./.github/workflows/internal/wf-deploy-lambda.yml
+
+  deploy-s3:
+    if: ${{ inputs.component-type == 's3' }}
+    needs: build
+    uses: ./.github/workflows/internal/wf-deploy-s3.yml
+
+  metrics:
+    needs: [lint, test, build, docker, deploy-ecs, deploy-lambda, deploy-s3]
+    if: always()
+    uses: ./.github/workflows/internal/wf-metrics.yml
+    with:
+      workflow-name: ${{ github.workflow }}
+      status: ${{ job.status }}

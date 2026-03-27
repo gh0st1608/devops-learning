@@ -1,0 +1,11 @@
+name: wf-deploy-ecs
+
+on:
+  workflow_call:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: ./.github/actions/deploy-ecs-action

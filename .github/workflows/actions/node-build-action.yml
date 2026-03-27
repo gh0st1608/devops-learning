@@ -1,0 +1,11 @@
+name: node-build
+description: Build node project
+
+runs:
+  using: "composite"
+  steps:
+    - run: npm ci
+      shell: bash
+
+    - run: npm run build --if-present
+      shell: bash

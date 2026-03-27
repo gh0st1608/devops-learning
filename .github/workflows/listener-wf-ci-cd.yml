@@ -4,8 +4,8 @@ on: push
 
 jobs:
   cicd:
-    uses: ./. /workflows/wf-nodejs-all.yml
+    uses: ./.github/workflows/wf-nodejs-all.yml
     with:
       component-type: ecs
-  observability:
+      working-directory: app
     

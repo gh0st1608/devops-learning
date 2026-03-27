@@ -52,8 +52,6 @@ jobs:
       npm-install-command: ${{ inputs.npm-install-command }}
       npm-lint-command: ${{ inputs.npm-lint-command }}
       flag-eslint: ${{ inputs.flag-eslint }}
-    secrets:
-      PA_TOKEN: ${{ secrets.PA_TOKEN }}
 
   test:
     needs: lint
@@ -66,10 +64,9 @@ jobs:
       flag-sonarcloud: ${{ inputs.flag-sonarcloud }}
       flag-unit-test: ${{ inputs.flag-unit-test }}
       report-path: "coverage"
-      sonar-sources: "."
+      sonar-sources: "src"
       sonar-exclusions: ""
     secrets:
-      PA_TOKEN: ${{ secrets.PA_TOKEN }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   build:

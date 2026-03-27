@@ -66,14 +66,13 @@ runs:
         fi
 
     - name: SonarCloud
+      if: ${{ inputs.flag-sonarcloud }}
       uses: sonarsource/sonarcloud-github-action@v2
       env:
         SONAR_TOKEN: ${{ inputs.sonar-token }}
         GITHUB_TOKEN: ${{ github.token }}
       with:
         args: >
-          -Dsonar.organization=tech-belcorp
-          -Dsonar.projectKey=tech-belcorp_${{ github.event.repository.name }}
           -Dsonar.sources=${{ inputs.sonar-sources }}
           -Dsonar.exclusions=${{ inputs.sonar-exclusions }}
           ${{ steps.sonar.outputs.extra }}

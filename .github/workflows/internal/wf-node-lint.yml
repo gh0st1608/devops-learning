@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: ./.github/actions/node-lint
+      - uses: ./.github/actions/node-lint-action
         with:
           working-directory: ${{ inputs.working-directory }}
           install-command: ${{ inputs.npm-install-command }}
